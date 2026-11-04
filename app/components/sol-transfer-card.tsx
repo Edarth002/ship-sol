@@ -7,7 +7,7 @@ import { useConnectedWallet } from "@solana/kit-plugin-wallet/react";
 import { useState } from "react";
 import type { AppClient } from "../providers";
 
-const LAMPORTS_PER_SOL = 1_000_000_000n;
+const LAMPORTS_PER_SOL = BigInt(1_000_000_000);
 
 function parseLamports(input: string) {
   const sol = Number(input);
@@ -17,7 +17,7 @@ function parseLamports(input: string) {
   const amount =
     BigInt(whole) * LAMPORTS_PER_SOL +
     BigInt(Math.round(frac * Number(LAMPORTS_PER_SOL)));
-  return amount > 0n ? amount : null;
+  return amount > BigInt(0) ? amount : null;
 }
 
 export function SolTransferCard() {
