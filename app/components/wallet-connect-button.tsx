@@ -28,30 +28,49 @@ export function WalletConnectButton() {
   const error = connect.error ?? disconnect.error;
 
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="inline-flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition"
-      >
+   <div className="relative">
+    <button
+      type="button"
+      onClick={() => setOpen((v) => !v)}
+      aria-expanded={open}
+      aria-haspopup="menu"
+      className="group relative inline-flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition hover:border-[#9945FF]/60 hover:shadow-[0_0_24px_-6px_rgba(153,69,255,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9945FF]/60"
+    >
+      <span className="flex items-center gap-2">
+        <span
+          className={`h-2 w-2 rounded-full ${
+            address ? "bg-[#14F195] shadow-[0_0_8px_#14F195]" : "bg-white/30"
+          }`}
+        />
         {address ? (
           <span className="font-mono">{truncate(address)}</span>
         ) : (
           <span>Connect wallet</span>
         )}
-        <span className="text-xs text-slate-500">{open ? "▲" : "▼"}</span>
-      </button>
+      </span>
+      <svg
+        viewBox="0 0 20 20"
+        className={`h-4 w-4 text-white/50 transition-transform ${open ? "rotate-180" : ""}`}
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="M5.5 7.5 10 12l4.5-4.5-1.1-1.1L10 9.8 6.6 6.4z" />
+      </svg>
+    </button>
+ 
+    {open ? (
 
-      {open ? (
-        <div className="absolute z-10 mt-2 w-full min-w-[240px] rounded-xl border border-slate-200 bg-white p-3 shadow-lg">
+      <div
+        role="menu"
+        className="absolute z-10 mt-2 w-full min-w-[260px] rounded-2xl bg-gradient-to-br from-[#9945FF]/50 via-white/10 to-[#14F195]/40 p-px shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)]"
+      >
+        <div className="rounded-2xl bg-[#0d0b1a]/95 p-3 backdrop-blur-xl">
           {connected ? (
             <div className="space-y-3">
-              <div className="rounded border border-slate-100 bg-slate-50 px-3 py-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
-                  Connected
-                </p>
+              <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5">
+                <p className="text-xs font-medium text-[#14F195]">Connected</p>
                 <p
-                  className="font-mono text-sm text-slate-900"
+                  className="font-mono text-sm text-white"
                   title={address ?? ""}
                 >
                   {address ? truncate(address) : ""}
@@ -63,19 +82,22 @@ export function WalletConnectButton() {
                   void disconnect.dispatch();
                   setOpen(false);
                 }}
-                className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white/80 transition hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-rose-200"
               >
                 Disconnect
               </button>
             </div>
           ) : (
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
-                Wallet Standard
+              <p className="px-1 text-xs font-medium text-white/50">
+                Choose a wallet
               </p>
               <div className="space-y-1.5">
                 {wallets.length === 0 ? (
-                  <p className="text-sm text-slate-500">No wallets detected.</p>
+                  <p className="rounded-xl border border-dashed border-white/15 px-3.5 py-3 text-sm text-white/55">
+                    No wallets found. Install a Solana wallet extension, then
+                    reload.
+                  </p>
                 ) : (
                   wallets.map((wallet) => (
                     <button
@@ -86,23 +108,25 @@ export function WalletConnectButton() {
                         void connect.dispatch(wallet);
                         setOpen(false);
                       }}
-                      className="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                      className="flex cursor-pointer w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white transition hover:border-[#9945FF]/60 hover:bg-[#9945FF]/10 disabled:opacity-40"
                     >
                       <span>{wallet.name}</span>
-                      <span className="text-xs text-slate-500">Connect</span>
+                      <span className="text-xs text-[#14F195]">Connect</span>
                     </button>
                   ))
                 )}
               </div>
             </div>
           )}
+ 
           {error ? (
-            <p className="mt-2 text-sm font-semibold text-red-600">
+            <p className="mt-3 rounded-xl border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-200">
               {error instanceof Error ? error.message : String(error)}
             </p>
           ) : null}
         </div>
-      ) : null}
-    </div>
-  );
+      </div>
+    ) : null}
+  </div>
+);
 }
