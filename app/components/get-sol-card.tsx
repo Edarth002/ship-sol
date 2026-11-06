@@ -1,38 +1,32 @@
 "use client";
-import { airdropFactory, createSolanaRpcSubscriptions, createSolanaRpc, generateKeyPairSigner, lamports } from "@solana/kit"
+import { createSolanaRpc, address } from "@solana/kit"
 import { useEffect, useState } from "react" 
 
-const rpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || "https://api.devnet.solana.com"
+const rpcUrl = "https://api.devnet.solana.com"
 const rpc = createSolanaRpc(rpcUrl);
-const rpcSubscriptions = createSolanaRpcSubscriptions("wss://api.devnet.solana.com");
+
+const Wallet = "B1rWidC6i32p4ZivZRyNvvBwK4wdfkbcPPT2N7xSMcRZ"
 
 
 export default function GetSolCard() {
-    const [balance, setBalance] = useState<bigint | null>(null);
+    const [balance, setBalance] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        setLoading(true);
-        
-        async function Airdrop(){
+      
+        async function getWalletBalance(){
             try {
                 setLoading(true);
 
-                const wallet = await generateKeyPairSigner();
-                const LAMPORTS_PER_SOL = BigInt(1_000_000_000);
+               const walletAddress = address(Wallet);
+               const { value: lamports } = await rpc.getBalance(walletAddress).send();
 
-                await airdropFactory({ rpc, rpcSubscriptions })({
-                recipientAddress: wallet.address,
-                lamports: lamports(LAMPORTS_PER_SOL),
-                commitment: "confirmed",
-                });
-
-                const { value } = await rpc.getBalance(wallet.address).send();
-                setBalance(value);
-                setLoading(false);
+               const solValue = Number(lamports) / Math.pow(10, 9);
+               setBalance(solValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                
+               setLoading(false);
             }
             catch (error) {
-            console.error("Error fetching balance:", error);
             setBalance(null);
             setLoading(false);
             }
@@ -40,7 +34,7 @@ export default function GetSolCard() {
             setLoading(false);
             }
         }
-        Airdrop();
+        getWalletBalance();
     }, []);
 
 
