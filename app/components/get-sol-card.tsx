@@ -1,25 +1,35 @@
 "use client";
+import {useClient} from "@solana/react";
 import { createSolanaRpc, address, createSolanaRpcSubscriptions } from "@solana/kit"
 import { useEffect, useState } from "react" 
+import { useConnectedWallet } from "@solana/kit-plugin-wallet/react";
+import type { AppClient } from "../providers";
 
 const rpcUrl = "https://api.devnet.solana.com"
-const rpcUrl2 = "wss://api.devnet.solana.com/"
+const rpcUrl2 = "wss://api.devnet.solana.com"
 const rpc = createSolanaRpc(rpcUrl);
 const rpcSubscriptions = createSolanaRpcSubscriptions(rpcUrl2);
 
-const Wallet = "B1rWidC6i32p4ZivZRyNvvBwK4wdfkbcPPT2N7xSMcRZ"
 
 
 function formatSol(lamports: bigint): string {
     const solValue = Number(lamports) / Math.pow(10, 9);
-    return solValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return solValue.toLocaleString(undefined, { minimumFractionDigits: 10, maximumFractionDigits: 10 });
 }
 
 export default function GetSolCard() {
     const [balance, setBalance] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const client = useClient<AppClient>();
+    const connected = useConnectedWallet(client);
+    const walletAddress = connected?.signer?.address;
 
     useEffect(() => {
+
+        if(!walletAddress){
+            setBalance(null);
+            return;
+        }
 
         const abortController = new AbortController();
       
@@ -27,17 +37,17 @@ export default function GetSolCard() {
             try {
                 setLoading(true);
 
-               const walletAddress = address(Wallet);
-               const { value: initialLamports } = await rpc.getBalance(walletAddress).send({abortSignal: abortController.signal});
+               const { value: initialLamports } = await rpc.getBalance(walletAddress!).send({abortSignal: abortController.signal});
 
                const solValue = formatSol(initialLamports);
                setBalance(solValue);
                 
                setLoading(false);
 
-               const notifications = await rpcSubscriptions.accountNotifications(walletAddress, { commitment: "confirmed" }).subscribe({abortSignal: abortController.signal});
+               const notifications = await rpcSubscriptions.accountNotifications(walletAddress!, { commitment: "confirmed", encoding: "base64" }).subscribe({abortSignal: abortController.signal});
 
                for await (const notification of notifications) {
+                console.log("Live lamports:", notification.value.lamports);
                 setBalance(formatSol(notification.value.lamports));
                }
             }
