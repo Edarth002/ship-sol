@@ -1,40 +1,62 @@
 "use client";
-import { createSolanaRpc, address } from "@solana/kit"
+import { createSolanaRpc, address, createSolanaRpcSubscriptions } from "@solana/kit"
 import { useEffect, useState } from "react" 
 
 const rpcUrl = "https://api.devnet.solana.com"
+const rpcUrl2 = "wss://api.devnet.solana.com/"
 const rpc = createSolanaRpc(rpcUrl);
+const rpcSubscriptions = createSolanaRpcSubscriptions(rpcUrl2);
 
 const Wallet = "B1rWidC6i32p4ZivZRyNvvBwK4wdfkbcPPT2N7xSMcRZ"
 
+
+function formatSol(lamports: bigint): string {
+    const solValue = Number(lamports) / Math.pow(10, 9);
+    return solValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
 export default function GetSolCard() {
     const [balance, setBalance] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+
+        const abortController = new AbortController();
       
         async function getWalletBalance(){
             try {
                 setLoading(true);
 
                const walletAddress = address(Wallet);
-               const { value: lamports } = await rpc.getBalance(walletAddress).send();
+               const { value: initialLamports } = await rpc.getBalance(walletAddress).send({abortSignal: abortController.signal});
 
-               const solValue = Number(lamports) / Math.pow(10, 9);
-               setBalance(solValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+               const solValue = formatSol(initialLamports);
+               setBalance(solValue);
                 
                setLoading(false);
+
+               const notifications = await rpcSubscriptions.accountNotifications(walletAddress, { commitment: "confirmed" }).subscribe({abortSignal: abortController.signal});
+
+               for await (const notification of notifications) {
+                setBalance(formatSol(notification.value.lamports));
+               }
             }
             catch (error) {
-            setBalance(null);
-            setLoading(false);
+                if(!abortController.signal.aborted) {
+                    console.error("Error fetching balance:", error);
+                    setLoading(false);
+                }
             }
             finally {
             setLoading(false);
             }
         }
         getWalletBalance();
+
+
+        return () => {
+            abortController.abort();
+        }
     }, []);
 
 
