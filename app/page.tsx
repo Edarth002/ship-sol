@@ -1,5 +1,4 @@
 import GetSolCard from "./components/get-sol-card";
-import { GmCard } from "./components/gm-card";
 import { SolTransferCard } from "./components/sol-transfer-card";
 import { WalletConnectButton } from "./components/wallet-connect-button";
 
