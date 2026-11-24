@@ -22,4 +22,12 @@ import fs from "node:fs";
     console.log(`Keypair saved to ${filePath}`);
 }
 
-await generateAndSaveKeyPair("./keypair.json");
+async function main() {
+    try {
+        await generateAndSaveKeyPair("./keypair.json");
+    } catch (error) {
+        console.error("Error generating and saving keypair:", error);
+    }
+}
+
+main();
