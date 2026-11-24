@@ -13,5 +13,13 @@ export async function loadKeyPairSigner(filePath: string): Promise<KeyPairSigner
     return keypairSigner;
 }
 
-const keypairSigner = await loadKeyPairSigner("./keypair.json");
-console.log(`Keypair loaded from ./keypair.json with public key: ${keypairSigner}`);
+async function main() {
+    try {
+        const keypairSigner = await loadKeyPairSigner("./keypair.json");
+        console.log(`Keypair loaded from ./keypair.json with public key: ${keypairSigner.address}`);
+    } catch (error) {
+        console.error("Error loading keypair:", error);
+    }
+}
+
+main();
