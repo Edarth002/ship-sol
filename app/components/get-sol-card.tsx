@@ -100,7 +100,7 @@ export default function GetSolCard() {
         async function subscribeToLogNotifications() {
             try {
               setLoading(true);
-              const logs = await rpcSubscriptions.logsNotifications( {mentions: [address("11111111111111111111111111111111")]}, { commitment: "confirmed" }).subscribe({abortSignal: abortController.signal});
+              const logs = await rpcSubscriptions.logsNotifications( {mentions: [walletAddress!]}, { commitment: "confirmed" }).subscribe({abortSignal: abortController.signal});
         
 
                for await (const logInfo of logs) {
