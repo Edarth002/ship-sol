@@ -26,3 +26,5 @@ async function transferSol(){
   console.log("Transfer Successful");
   
 }
+
+transferSol();
