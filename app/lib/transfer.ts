@@ -15,7 +15,7 @@ async function transferSol(){
     getTransferSolInstruction({
       source: sender,
       destination: receiver,
-      amount: lamports(BigInt(4_000_000_000))
+      amount: lamports(BigInt(3_000_000_000))
     })
   ], tx))
 
