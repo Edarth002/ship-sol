@@ -28,7 +28,7 @@ export default function HomePage() {
                 Pick a Wallet Standard connector.
               </p>
             </div>
-            <div className="sm:min-w-[260px]">
+            <div className="sm:min-w-65">
               <WalletConnectButton />
             </div>
           </div>
